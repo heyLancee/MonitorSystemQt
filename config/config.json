@@ -1,0 +1,7 @@
+{
+    "configs": {
+      "commu_config": "config/commu_config.json",
+      "base_config": "config/base_config.json"
+    },
+    "version": "1.0.0"
+  }
