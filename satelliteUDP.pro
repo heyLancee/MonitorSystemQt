@@ -17,24 +17,29 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    base.cpp \
-    faultDiagnosis.cpp \
-    main.cpp \
-    udpThread.cpp \
-    utils.cpp \
-    visualWin.cpp
+    src/core/base.cpp \
+    src/core/communication.cpp \
+    src/core/data_processor.cpp \
+    src/core/diagnosis_win.cpp \
+    src/core/main.cpp \
+    src/core/monitor_system.cpp \
+    src/core/visualization_window.cpp \
+    src/utils/config_manager.cpp \
+    src/utils/utils.cpp
 
 HEADERS += \
-    base.h \
-    faultDiagnosis.h \
-    main.h \
-    udpThread.h \
-    utils.h \
-    visualWin.h
+    inc/core/base.h \
+    inc/core/communication.h \
+    inc/core/data_processor.h \
+    inc/core/diagnosis_win.h \
+    inc/core/monitor_system.h \
+    inc/core/visualization_window.h \
+    inc/utils/config_manager.h \
+    inc/utils/utils.h
 
 FORMS += \
-    faultDiagnosis.ui \
-    visualWin.ui
+    src/ui/diagnosis_win.ui \
+    src/ui/visualization_window.ui
 
 UI_DIR = ../qt/
 
@@ -44,4 +49,4 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 RESOURCES += \
-    Resources.qrc
+    resources/Resources.qrc
