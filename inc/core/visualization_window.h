@@ -25,8 +25,6 @@ public:
     ~visualWin();
 
 public:
-    std::unique_ptr<class diaform> new_w;
-
     std::unique_ptr<class Plot> plotWX;
     std::unique_ptr<class Plot> plotWY;
     std::unique_ptr<class Plot> plotWZ;
@@ -72,6 +70,10 @@ public:
     QList<QPointF> VYList;
     QList<QPointF> VZList;
 
+    QList<QPointF> WboXList;
+    QList<QPointF> WboYList;
+    QList<QPointF> WboZList;
+
     QList<QPointF> Qbo0List;
     QList<QPointF> Qbo1List;
     QList<QPointF> Qbo2List;
@@ -80,19 +82,23 @@ public:
     QList<QPointF> zAngleList;
 
 public:
-    void draw_plot(Plot* plot, QList<QPointF>& dataList, QValueAxis* axisX, QValueAxis* axisY, double timeStep, double data);
+    void draw_plot(Plot* plot, QList<QPointF>& dataList, QValueAxis& axisX, QValueAxis& axisY, double timeStep, double data);
+
+signals:
+    void show_diag_window_signal();
+
+signals:
+    void send_command_signal(std::shared_ptr<QByteArray> command, CommuDataType dataType);
+    void commu_start_signal(quint16 bindPort,QString targetIP,quint16 targetPort);
+    void commu_stop_signal();
 
 public slots:
-      void send_command_signal(std::shared_ptr<QByteArray> command, CommuDataType dataType);    
-      void commu_start_signal(quint16 bindPort,QString targetIP,quint16 targetPort);
-      void commu_stop_signal();
-
-private slots:
     void commu_start_success_slot();
     void commu_stop_success_slot();
 
-    void draw_data(std::shared_ptr<void> unpackedData, CommuDataType dataType);
+    void draw_data(std::shared_ptr<QVariant> unpackedData, CommuDataType dataType);
 
+private slots:
     void on_OpenNewWidgetButton_2_clicked();
     void on_ClearUdpClientTextButton_clicked();
     void on_RunPlatformButton_clicked();

@@ -8,7 +8,7 @@
 Communication::Communication(QObject *parent) : QObject(parent)
 {
     /* UDP类构造函数 */
-    this->udp = std::make_unique<udpSocket>();
+    this->udp = std::unique_ptr<udpSocket>(new udpSocket());
     this->udp_config = theConfigManager.getConfig("commu_config");
     if(this->udp_config.isEmpty())
     {
@@ -16,11 +16,12 @@ Communication::Communication(QObject *parent) : QObject(parent)
         return;
     }
 
-    this->frameHead = this->udp_config["PlatformCommands"]["FrameHead"].toString();
-    this->frameTail = this->udp_config["PlatformCommands"]["FrameTail"].toString();
+    QJsonObject platformCommands = this->udp_config["PlatformCommands"].toObject();
+    this->frameHeadArray = platformCommands["FrameHead"].toString().toUtf8();
+    this->frameTailArray = platformCommands["FrameTail"].toString().toUtf8();
 
     // 初始化DataProcessor
-    dataProcessor = std::make_unique<DataProcessor>();
+    dataProcessor = std::unique_ptr<DataProcessor>(new DataProcessor());
     connect(dataProcessor.get(), &DataProcessor::data_processed_signal, this, &Communication::commu_recv_success_signal);
 }
 
@@ -30,20 +31,20 @@ Communication::~Communication() {
 
 udpSocket::udpSocket()
 {
-    this->socket = std::make_unique<QUdpSocket>();
+    this->socket = std::unique_ptr<QUdpSocket>(new QUdpSocket());
 }
 
 void Communication::send_command_slot(std::shared_ptr<QByteArray> command, CommuDataType dataType)
 {
     // 创建封装后的数据包
     QByteArray packet;
-    packet.append(this->frameHead); // 添加帧头
+    packet.append(this->frameHeadArray); // 添加帧头
 
     // 添加类型标识符
     packet.append(static_cast<char>(dataType));
 
     packet.append(*command);        // 添加数据
-    packet.append(this->frameTail); // 添加帧尾
+    packet.append(this->frameTailArray); // 添加帧尾
 
     // 通过UDP发送数据包
     this->udp->socket->writeDatagram(packet, this->udp->targetHostAddress, this->udp->targetPort);
@@ -67,7 +68,7 @@ void Communication::process_commu_data_slot()
 
         // 异步处理数据包
         std::shared_ptr<QByteArray> datagramPtr = std::make_shared<QByteArray>(datagram);
-        QtConcurrent::run(dataProcessor.get(), &DataProcessor::processData, datagramPtr, this->frameHead, this->frameTail);
+        QtConcurrent::run(dataProcessor.get(), &DataProcessor::processData, datagramPtr, this->frameHeadArray, this->frameTailArray);
     }
 }
 
@@ -76,10 +77,10 @@ void Communication::commu_start_slot(quint16 bindPort, QString targetIP, quint16
     /* 主线程绑定端口信号send_Udp_Bind_Port的槽函数 */
     qDebug()<<"udp_tid:"<< QThread::currentThread();
 
-    this->bindPort = bindPort;
-    this->targetIP = targetIP;
-    this->targetHostAddress = QHostAddress(targetIP);
-    this->targetPort = targetPort;
+    this->udp->bindPort = bindPort;
+    this->udp->targetIP = targetIP;
+    this->udp->targetHostAddress = QHostAddress(targetIP);
+    this->udp->targetPort = targetPort;
 
     if(this->udp->socket->bind(this->udp->bindPort)) // 监听所有IP，等同于QHostAddress::Any绑定任意地址
     {

@@ -9,9 +9,11 @@ typedef struct
 {
     float timeStep;
     float wx, wy, wz;
+    
     float q0, q1, q2, q3;
     float rx, ry, rz;
     float vx, vy, vz;
+    float wboX, wboY, wboZ;
     float qbo0, qbo1, qbo2, qbo3;
     float tx, ty, tz;
     float zAngle;
@@ -29,6 +31,7 @@ typedef struct
                >> q0 >> q1 >> q2 >> q3
                >> rx >> ry >> rz
                >> vx >> vy >> vz
+               >> wboX >> wboY >> wboZ
                >> qbo0 >> qbo1 >> qbo2 >> qbo3
                >> tx >> ty >> tz
                >> zAngle;
@@ -93,5 +96,8 @@ enum CommuDataType {
     faultParaType = 3,
     saveDataType = 4
 };
+
+// 注册telemetryStruct类型
+Q_DECLARE_METATYPE(telemetryStruct)
 
 #endif // BASE_H

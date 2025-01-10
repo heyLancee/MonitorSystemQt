@@ -35,10 +35,10 @@ public:
 signals:
     void commu_start_success_signal();
     void commu_stop_success_signal();
-    void commu_recv_success_signal(std::shared_ptr<void> unpackedData, CommuDataType dataType);
+    void commu_recv_success_signal(std::shared_ptr<QVariant> unpackedData, CommuDataType dataType);
 
 public slots:
-    void send_command_slot(QByteArray command, CommuDataType dataType);
+    void send_command_slot(std::shared_ptr<QByteArray> command, CommuDataType dataType);
     void process_commu_data_slot();
     void commu_start_slot(quint16 bindPort, QString targetIP, quint16 targetPort);
     void commu_stop_slot();
@@ -46,8 +46,8 @@ public slots:
 private:
     std::unique_ptr<udpSocket> udp;
     QJsonObject udp_config;
-    QString frameHead;
-    QString frameTail;
+    QByteArray frameHeadArray;
+    QByteArray frameTailArray;
     
     std::unique_ptr<DataProcessor> dataProcessor;
 };

@@ -1,15 +1,15 @@
 ﻿#include "diagnosis_win.h"
 #include "utils.h"
 
-diagnosisWin::diagnosisWin(QMainWindow *parent) : QMainWindow(parent), ui(std::make_unique<Ui::diagnosisWin>())
+diagnosisWin::diagnosisWin(QMainWindow *parent) : QMainWindow(parent), ui(std::unique_ptr<Ui::diagnosisWin>(new Ui::diagnosisWin()))
 {
     ui->setupUi(this);
 
-    plotAlgo1 = std::make_unique<Plot>(Qt::red, Qt::SolidLine, "Algorithm 1", "Time(s)", "Value", 0, 100, -0.02, 0.02);
-    ui->chartView_Algo1->setChart(plotAlgo1->chart);
+    plotAlgo1 = std::unique_ptr<Plot>(new Plot(ui->chartView_Algo1, Qt::red, Qt::SolidLine, "Algorithm 1", "Time(s)", "Value", 0, 100, -0.02, 0.02));
+    ui->chartView_Algo1->setChart(plotAlgo1->chart.get());
 
-    plotAlgo2 = std::make_unique<Plot>(Qt::red, Qt::SolidLine, "Algorithm 2", "Time(s)", "Value", 0, 100, -0.02, 0.02);
-    ui->chartView_Algo2->setChart(plotAlgo2->chart);
+    plotAlgo2 = std::unique_ptr<Plot>(new Plot(ui->chartView_Algo2, Qt::red, Qt::SolidLine, "Algorithm 2", "Time(s)", "Value", 0, 100, -0.02, 0.02));
+    ui->chartView_Algo2->setChart(plotAlgo2->chart.get());
 }
 
 void diagnosisWin::on_cmdInjectButton_clicked()
@@ -41,7 +41,7 @@ void diagnosisWin::on_cmdInjectButton_clicked()
     QByteArray cmd = faultPara.toByteArray();
     std::shared_ptr<QByteArray> cmdPtr = std::make_shared<QByteArray>(cmd);
 
-    emit this->send_command_signal(cmdPtr, CommuDataType::FaultInjectType);
+    emit this->send_command_signal(cmdPtr, CommuDataType::faultParaType);
 }
 
 void diagnosisWin::on_saveDataButton_clicked()
@@ -61,6 +61,6 @@ void diagnosisWin::on_saveDataButton_clicked()
     
     QByteArray cmd = saveData.toByteArray();
     std::shared_ptr<QByteArray> cmdPtr = std::make_shared<QByteArray>(cmd);
-    emit this->send_command_signal(cmdPtr, CommuDataType::SaveDataType);
+    emit this->send_command_signal(cmdPtr, CommuDataType::saveDataType);
 }
 

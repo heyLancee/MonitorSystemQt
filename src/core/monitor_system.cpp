@@ -3,11 +3,11 @@
 
 MonitorSystem::MonitorSystem(QMainWindow *parent)
 {
-    this->visualWindow = std::make_unique<visualWin>(parent);
-    this->diagWindow = std::make_unique<diagnosisWin>(parent);
+    this->visualWindow = std::unique_ptr<visualWin>(new visualWin(parent));
+    this->diagWindow = std::unique_ptr<diagnosisWin>(new diagnosisWin(parent));
 
-    this->thread = std::make_unique<QThread>();
-    this->communication = std::make_unique<Communication>();
+    this->thread = std::unique_ptr<QThread>(new QThread());
+    this->communication = std::unique_ptr<Communication>(new Communication());
     this->communication->moveToThread(this->thread.get());
 
     this->visualWindow->show();
@@ -29,13 +29,18 @@ MonitorSystem::MonitorSystem(QMainWindow *parent)
 
     // 故障诊断界面发出命令
     connect(this->diagWindow.get(), &diagnosisWin::send_command_signal, this->communication.get(), &Communication::send_command_slot);
+
+    // 故障诊断界面显示
+    connect(this->visualWindow.get(), &visualWin::show_diag_window_signal, this->diagWindow.get(), [&](){
+        this->diagWindow->show();
+        this->visualWindow->hide();
+    });
 }
 
 void MonitorSystem::startCommunication(quint16 bindPort, QString targetIP, quint16 targetPort)
 {
     if (!thread->isRunning()) {
         thread->start();
-        this->visualWindow->ui->plainUdpClientTextEdit->appendPlainText("Thread Start");
         
         QMetaObject::invokeMethod(this->communication.get(), "commu_start_slot", Q_ARG(quint16, bindPort), Q_ARG(QString, targetIP), Q_ARG(quint16, targetPort));
         qDebug() << "Thread started";
@@ -47,7 +52,6 @@ void MonitorSystem::stopCommunication()
     if (thread->isRunning()) {
         thread->quit();
         thread->wait();
-        this->visualWindow->ui->plainUdpClientTextEdit->appendPlainText("Thread Stopped");
         
         QMetaObject::invokeMethod(this->communication.get(), "commu_stop_slot");
         qDebug() << "Thread stopped";

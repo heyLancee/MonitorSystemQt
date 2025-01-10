@@ -30,13 +30,13 @@ class BaseConfig
 public:
     static BaseConfig& getInstance();
 
-private
+private:
     BaseConfig();
     ~BaseConfig()=default;
 
-private:
+public:
     QJsonObject baseConfig;
-    int draw_time_max;
+    double draw_time_max;
     int axis_refresh_freq;
 };
 

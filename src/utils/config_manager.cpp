@@ -66,7 +66,7 @@ bool ConfigManager::loadJsonFile(const QString& path, QJsonObject& output) {
 BaseConfig::BaseConfig()
 {
     this->baseConfig = theConfigManager.getConfig("base_config");
-    this->draw_time_max = baseConfig["draw_time_max"].toInt();
+    this->draw_time_max = baseConfig["draw_time_max"].toDouble();
     this->axis_refresh_freq = baseConfig["axis_refresh_freq"].toInt();
 }
 

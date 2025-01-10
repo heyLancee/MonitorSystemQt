@@ -1,12 +1,16 @@
-#include "monitor_system.h"
+#include "core/monitor_system.h"
+#include "utils/config_manager.h"
 #include <QApplication>
+#include <QFileInfo>
+#include <QProcess>
+#include <QDebug>
 
 int main(int argc, char *argv[])
 {   
     // 设置环境变量
     QString projectPath = QFileInfo(__FILE__).absolutePath() + "/../..";
-    QProcess::setEnvironment(QStringList() << "PROJECT_PATH=" + projectPath);
-    QProcess::setEnvironment(QStringList() << "ConfigPath=" + projectPath + "/config");
+    qputenv("PROJECT_PATH", projectPath.toUtf8());
+    qputenv("ConfigPath", (projectPath + "/config").toUtf8());
 
     // 初始化配置管理器
     if (!theConfigManager.init(projectPath + "/config/config.json")){

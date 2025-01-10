@@ -1,30 +1,31 @@
 #include "utils.h"
 #include "config_manager.h"
+#include <memory>
 
 // 构造函数
 Plot::Plot(QChartView* chartView, const QColor& color, Qt::PenStyle style, const QString& title, 
             const QString& axisXLabel, const QString& axisYLabel, double minX, double maxX, double minY, double maxY, 
             bool legendShow) 
 {
-    // 初始化图表和系列
-    this->chart = new QChart();
-    this->series = new QLineSeries();
-    this->chart->addSeries(this->series);
+    // 使用std::make_unique初始化成员变量
+    this->chart = std::unique_ptr<QChart>(new QChart());
+    this->series = std::unique_ptr<QLineSeries>(new QLineSeries());
+    this->chart->addSeries(this->series.get());
     this->chart->setTitle(title);
 
     // 初始化X轴
-    this->axisX = new QValueAxis();
+    this->axisX = std::unique_ptr<QValueAxis>(new QValueAxis());
     this->axisX->setTitleText(axisXLabel);
     this->axisX->setRange(minX, maxX);
-    this->chart->addAxis(this->axisX, Qt::AlignBottom);
-    this->series->attachAxis(this->axisX);
+    this->chart->addAxis(this->axisX.get(), Qt::AlignBottom);
+    this->series->attachAxis(this->axisX.get());
 
     // 初始化Y轴
-    this->axisY = new QValueAxis();
+    this->axisY = std::unique_ptr<QValueAxis>(new QValueAxis());
     this->axisY->setTitleText(axisYLabel);
     this->axisY->setRange(minY, maxY);
-    this->chart->addAxis(this->axisY, Qt::AlignLeft);
-    this->series->attachAxis(this->axisY);
+    this->chart->addAxis(this->axisY.get(), Qt::AlignLeft);
+    this->series->attachAxis(this->axisY.get());
 
     // 设置画笔
     this->pen.setColor(color);
@@ -38,10 +39,10 @@ Plot::Plot(QChartView* chartView, const QColor& color, Qt::PenStyle style, const
     }
 
     // 设置图表到QChartView
-    chartView->setChart(this->chart);
+    chartView->setChart(this->chart.get());
     chartView->setRenderHint(QPainter::Antialiasing);
 
-    this->telemetryCount = 0;
+    telemetryCount = 0;
 }
 
 /**
@@ -55,7 +56,7 @@ Plot::Plot(QChartView* chartView, const QColor& color, Qt::PenStyle style, const
  * @param yCurrMinRange 当前Y最小范围
  * @param yCurrMaxRange 当前Y最大范围
  */
-void Plot::refreshAxes(QList<QPointF> dataList, QValueAxis *axisX, QValueAxis *axisY,
+void Plot::refreshAxes(QList<QPointF> dataList, QValueAxis &axisX, QValueAxis &axisY,
                        float xCurrMinRange, float xCurrMaxRange, float yCurrMinRange, float yCurrMaxRange)
 {
     if (dataList.isEmpty()) return;
@@ -64,7 +65,7 @@ void Plot::refreshAxes(QList<QPointF> dataList, QValueAxis *axisX, QValueAxis *a
     float x_min = dataList.first().x();
     if (xCurrMinRange != -1)
         x_min = qMin(x_min, xCurrMinRange);
-    float x_max = qMax(dataList.last().x(), static_cast<float>(theBaseConfig.draw_time_max));
+    float x_max = qMax(dataList.last().x(), theBaseConfig.draw_time_max);
     if (xCurrMaxRange != -1)
         x_max = qMax(x_max, xCurrMaxRange);
 
@@ -83,8 +84,8 @@ void Plot::refreshAxes(QList<QPointF> dataList, QValueAxis *axisX, QValueAxis *a
     if (yCurrMaxRange != -1)
         y_max = qMax(y_max, yCurrMaxRange);
 
-    axisX->setRange(x_min, x_max);
-    axisY->setRange(y_min, y_max);
+    axisX.setRange(x_min, x_max);
+    axisY.setRange(y_min, y_max);
 }
 
 /**

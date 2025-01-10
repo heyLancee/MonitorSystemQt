@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QByteArray>
+#include <QVariant>
 #include "base.h"
 
 /**
@@ -15,10 +16,11 @@ public:
     explicit DataProcessor(QObject *parent = nullptr);
 
 signals:
-    void data_processed_signal(std::shared_ptr<void> unpackedData, CommuDataType dataType);
+    void data_processed_signal(std::shared_ptr<QVariant> unpackedData, CommuDataType dataType);
 
 public slots:
-    void processData(std::shared_ptr<QByteArray> datagram, const QString& frameHead="", const QString& frameTail="");
+    void processData(std::shared_ptr<QByteArray> datagram, const QByteArray& frameHeadArray, const QByteArray& frameTailArray);
+
 };
 
 #endif // DATA_PROCESSOR_H 
