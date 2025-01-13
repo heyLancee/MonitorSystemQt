@@ -41,6 +41,30 @@ typedef struct
 
 } telemetryStruct;
 
+Q_DECLARE_METATYPE(telemetryStruct)
+
+typedef struct{
+    float timeStep;
+    float faultValue;
+    int faultType;
+    bool fromByteArray(const QByteArray& data) {
+        if (data.isEmpty()) {
+            return false;
+        }
+
+        QDataStream stream(data);
+        stream.setByteOrder(QDataStream::LittleEndian);
+
+        stream >> timeStep
+               >> faultValue
+               >> faultType;
+               
+        return stream.status() == QDataStream::Ok;
+    }
+} faultResultStruct;
+
+Q_DECLARE_METATYPE(faultResultStruct)
+
 typedef struct{
     float faultTimeLow;
     float faultAttLow;
@@ -91,13 +115,11 @@ typedef struct {
 // enmu 表示数据类型
 enum CommuDataType {
     telemetryType = 0,
-    runPlatformType = 1,
-    stopPlatformType = 2,
-    faultParaType = 3,
-    saveDataType = 4
+    faultResultType = 1,
+    runPlatformType = 2,
+    stopPlatformType = 3,
+    faultParaType = 4,
+    saveDataType = 5
 };
-
-// 注册telemetryStruct类型
-Q_DECLARE_METATYPE(telemetryStruct)
 
 #endif // BASE_H

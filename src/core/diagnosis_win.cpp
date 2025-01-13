@@ -1,7 +1,7 @@
 ﻿#include "diagnosis_win.h"
 #include "utils.h"
 
-diagnosisWin::diagnosisWin(QMainWindow *parent) : QMainWindow(parent), ui(std::unique_ptr<Ui::diagnosisWin>(new Ui::diagnosisWin()))
+DiagnosisWin::DiagnosisWin(QMainWindow *parent) : QMainWindow(parent), ui(std::unique_ptr<Ui::DiagnosisWin>(new Ui::DiagnosisWin()))
 {
     ui->setupUi(this);
 
@@ -10,9 +10,12 @@ diagnosisWin::diagnosisWin(QMainWindow *parent) : QMainWindow(parent), ui(std::u
 
     plotAlgo2 = std::unique_ptr<Plot>(new Plot(ui->chartView_Algo2, Qt::red, Qt::SolidLine, "Algorithm 2", "Time(s)", "Value", 0, 100, -0.02, 0.02));
     ui->chartView_Algo2->setChart(plotAlgo2->chart.get());
+
+    // 注册faultResultStruct类型
+    qRegisterMetaType<faultResultStruct>();
 }
 
-void diagnosisWin::on_cmdInjectButton_clicked()
+void DiagnosisWin::on_cmdInjectButton_clicked()
 {
     faultParaStruct faultPara;
     // 故障注入
@@ -44,7 +47,7 @@ void diagnosisWin::on_cmdInjectButton_clicked()
     emit this->send_command_signal(cmdPtr, CommuDataType::faultParaType);
 }
 
-void diagnosisWin::on_saveDataButton_clicked()
+void DiagnosisWin::on_saveDataButton_clicked()
 {
     /* 保存数据按钮 */
     saveDataStruct saveData;
@@ -64,3 +67,24 @@ void diagnosisWin::on_saveDataButton_clicked()
     emit this->send_command_signal(cmdPtr, CommuDataType::saveDataType);
 }
 
+void DiagnosisWin::draw_plot(Plot* plot, QList<QPointF>& dataList, QValueAxis& axisX, QValueAxis& axisY, double timeStep, double data)
+{
+    plot->updateDataList(dataList, axisX, axisY, timeStep, data);
+    plot->series->replace(dataList);
+}
+
+
+void DiagnosisWin::draw_data(std::shared_ptr<QVariant> unpackedData, CommuDataType dataType)
+{
+    if (dataType != faultResultType || unpackedData == nullptr)
+        return;
+
+    faultResultStruct udpData = unpackedData->value<faultResultStruct>();
+
+    /* 画图定时器timeout槽函数 */
+    if (udpData.faultType == 1) {
+        draw_plot(plotAlgo1.get(), faultRes1List, *plotAlgo1->axisX, *plotAlgo1->axisY, udpData.timeStep, udpData.faultValue);
+    } else if (udpData.faultType == 2) {
+        draw_plot(plotAlgo2.get(), faultRes2List, *plotAlgo2->axisX, *plotAlgo2->axisY, udpData.timeStep, udpData.faultValue);
+    }
+}

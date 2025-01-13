@@ -21,7 +21,7 @@ public slots:
 
 private:
     std::unique_ptr<visualWin> visualWindow;
-    std::unique_ptr<diagnosisWin> diagWindow;
+    std::unique_ptr<DiagnosisWin> diagWindow;
     std::unique_ptr<QThread> thread;
     std::unique_ptr<Communication> communication;
 };

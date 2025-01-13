@@ -4,7 +4,7 @@
 MonitorSystem::MonitorSystem(QMainWindow *parent)
 {
     this->visualWindow = std::unique_ptr<visualWin>(new visualWin(parent));
-    this->diagWindow = std::unique_ptr<diagnosisWin>(new diagnosisWin(parent));
+    this->diagWindow = std::unique_ptr<DiagnosisWin>(new DiagnosisWin(parent));
 
     this->thread = std::unique_ptr<QThread>(new QThread());
     this->communication = std::unique_ptr<Communication>(new Communication());
@@ -26,9 +26,10 @@ MonitorSystem::MonitorSystem(QMainWindow *parent)
 
     // 画图
     connect(this->communication.get(), &Communication::commu_recv_success_signal, this->visualWindow.get(), &visualWin::draw_data);
+    connect(this->communication.get(), &Communication::commu_recv_success_signal, this->diagWindow.get(), &DiagnosisWin::draw_data);
 
     // 故障诊断界面发出命令
-    connect(this->diagWindow.get(), &diagnosisWin::send_command_signal, this->communication.get(), &Communication::send_command_slot);
+    connect(this->diagWindow.get(), &DiagnosisWin::send_command_signal, this->communication.get(), &Communication::send_command_slot);
 
     // 故障诊断界面显示
     connect(this->visualWindow.get(), &visualWin::show_diag_window_signal, this->diagWindow.get(), [&](){

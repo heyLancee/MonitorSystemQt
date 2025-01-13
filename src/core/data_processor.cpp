@@ -32,6 +32,15 @@ void DataProcessor::processData(std::shared_ptr<QByteArray> datagram, const QByt
             *unpackedDataVariant = QVariant::fromValue(telemetryData);
             break;
         }
+        case CommuDataType::faultResultType: {
+            faultResultStruct faultResultData;
+            if (!faultResultData.fromByteArray(*datagram)) {
+                qWarning() << "Failed to unpack fault result data.";
+                return;
+            }
+            *unpackedDataVariant = QVariant::fromValue(faultResultData);
+            break;
+        }
         // 处理其他数据类型
         default:
             qWarning() << "Unknown data type.";
