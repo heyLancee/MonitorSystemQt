@@ -1,0 +1,5 @@
+/home/lxy/code/MonitorSystemQt/build/CMakeFiles/edit_cache.dir
+/home/lxy/code/MonitorSystemQt/build/CMakeFiles/rebuild_cache.dir
+/home/lxy/code/MonitorSystemQt/build/tests/CMakeFiles/test_tcpclient.dir
+/home/lxy/code/MonitorSystemQt/build/tests/CMakeFiles/edit_cache.dir
+/home/lxy/code/MonitorSystemQt/build/tests/CMakeFiles/rebuild_cache.dir

@@ -67,12 +67,6 @@ void DiagnosisWin::on_saveDataButton_clicked()
     emit this->send_command_signal(cmdPtr, CommuDataType::saveDataType);
 }
 
-void DiagnosisWin::draw_plot(Plot* plot, QList<QPointF>& dataList, QValueAxis& axisX, QValueAxis& axisY, double timeStep, double data)
-{
-    plot->updateDataList(dataList, axisX, axisY, timeStep, data);
-    plot->series->replace(dataList);
-}
-
 
 void DiagnosisWin::draw_data(std::shared_ptr<QVariant> unpackedData, CommuDataType dataType)
 {
@@ -83,8 +77,8 @@ void DiagnosisWin::draw_data(std::shared_ptr<QVariant> unpackedData, CommuDataTy
 
     /* 画图定时器timeout槽函数 */
     if (udpData.faultType == 1) {
-        draw_plot(plotAlgo1.get(), faultRes1List, *plotAlgo1->axisX, *plotAlgo1->axisY, udpData.timeStep, udpData.faultValue);
+        plotAlgo1->updateDataList(*plotAlgo1->axisX, *plotAlgo1->axisY, udpData.timeStep, udpData.faultValue);
     } else if (udpData.faultType == 2) {
-        draw_plot(plotAlgo2.get(), faultRes2List, *plotAlgo2->axisX, *plotAlgo2->axisY, udpData.timeStep, udpData.faultValue);
+        plotAlgo1->updateDataList(*plotAlgo2->axisX, *plotAlgo2->axisY, udpData.timeStep, udpData.faultValue);
     }
 }

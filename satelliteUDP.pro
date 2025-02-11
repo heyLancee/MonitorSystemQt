@@ -56,3 +56,8 @@ INCLUDEPATH += $$PWD/inc \
                $$PWD/inc/utils \
                /path/to/Qt/include
 
+DISTFILES += \
+    config/base_config.json \
+    config/commu_config.json \
+    config/config.json
+

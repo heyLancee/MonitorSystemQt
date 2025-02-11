@@ -1,4 +1,4 @@
 {
-    "draw_time_max": 100,
-    "axis_refresh_freq": 50
-} 
+    "max_draw_duration": 1000,
+    "axis_refresh_freq": 10
+}

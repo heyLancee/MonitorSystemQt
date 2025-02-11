@@ -8,28 +8,28 @@ MonitorSystem::MonitorSystem(QMainWindow *parent)
 
     this->thread = std::unique_ptr<QThread>(new QThread());
     this->communication = std::unique_ptr<Communication>(new Communication());
-    this->communication->moveToThread(this->thread.get());
 
     this->visualWindow->show();
     this->diagWindow->hide();
 
-    // 发送控制命令
-    connect(this->visualWindow.get(), &visualWin::send_command_signal, this->communication.get(), &Communication::send_command_slot);
+    // 连接线程启动信号到初始化槽
+    connect(thread.get(), &QThread::started, communication.get(), &Communication::init);
+    this->communication->moveToThread(this->thread.get());
 
     // 自定义槽函数，用于启动线程并调用commu_start_slot
     connect(this->visualWindow.get(), &visualWin::commu_start_signal, this, &MonitorSystem::startCommunication);
-    connect(this->communication.get(), &Communication::commu_start_success_signal, this->visualWindow.get(), &visualWin::commu_start_success_slot);
+    connect(this->communication.get(), &Communication::commu_start_success_signal, this->visualWindow.get(), &visualWin::commu_start_success_slot, Qt::QueuedConnection);
 
     // 自定义槽函数，用于停止线程并调用commu_stop_slot
     connect(this->visualWindow.get(), &visualWin::commu_stop_signal, this, &MonitorSystem::stopCommunication);
-    connect(this->communication.get(), &Communication::commu_stop_success_signal, this->visualWindow.get(), &visualWin::commu_stop_success_slot);
+    connect(this->communication.get(), &Communication::commu_stop_success_signal, this->visualWindow.get(), &visualWin::commu_stop_success_slot, Qt::QueuedConnection);
 
     // 画图
-    connect(this->communication.get(), &Communication::commu_recv_success_signal, this->visualWindow.get(), &visualWin::draw_data);
-    connect(this->communication.get(), &Communication::commu_recv_success_signal, this->diagWindow.get(), &DiagnosisWin::draw_data);
+    connect(this->communication.get(), &Communication::commu_recv_success_signal, this->visualWindow.get(), &visualWin::draw_data, Qt::QueuedConnection);
+    connect(this->communication.get(), &Communication::commu_recv_success_signal, this->diagWindow.get(), &DiagnosisWin::draw_data, Qt::QueuedConnection);
 
     // 故障诊断界面发出命令
-    connect(this->diagWindow.get(), &DiagnosisWin::send_command_signal, this->communication.get(), &Communication::send_command_slot);
+    connect(this->diagWindow.get(), &DiagnosisWin::send_command_signal, this->communication.get(), &Communication::send_command_slot, Qt::QueuedConnection);
 
     // 故障诊断界面显示
     connect(this->visualWindow.get(), &visualWin::show_diag_window_signal, this->diagWindow.get(), [&](){
@@ -40,22 +40,16 @@ MonitorSystem::MonitorSystem(QMainWindow *parent)
 
 void MonitorSystem::startCommunication(quint16 bindPort, QString targetIP, quint16 targetPort)
 {
-    if (!thread->isRunning()) {
-        thread->start();
-        
-        QMetaObject::invokeMethod(this->communication.get(), "commu_start_slot", Q_ARG(quint16, bindPort), Q_ARG(QString, targetIP), Q_ARG(quint16, targetPort));
-        qDebug() << "Thread started";
+    if (!thread->isRunning()) {    
+        thread->start();    
     }
+    QMetaObject::invokeMethod(this->communication.get(), "commu_start_slot", Q_ARG(quint16, bindPort), Q_ARG(QString, targetIP), Q_ARG(quint16, targetPort));
 }
 
 void MonitorSystem::stopCommunication()
 {
-    if (thread->isRunning()) {
-        thread->quit();
-        thread->wait();
-        
+    if (thread->isRunning()) {        
         QMetaObject::invokeMethod(this->communication.get(), "commu_stop_slot");
-        qDebug() << "Thread stopped";
     }
 }
 

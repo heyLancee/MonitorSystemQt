@@ -1,5 +1,5 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef VISUALIZATION_WINDOW_H
+#define VISUALIZATION_WINDOW_H
 
 #include <QMainWindow>
 #include <QtCharts>
@@ -53,42 +53,10 @@ public:
 
     std::unique_ptr<class Plot> plotZAngle;
 
-    QList<QPointF> WXList;
-    QList<QPointF> WYList;
-    QList<QPointF> WZList;
-
-    QList<QPointF> Q0List;
-    QList<QPointF> Q1List;
-    QList<QPointF> Q2List;
-    QList<QPointF> Q3List;
-
-    QList<QPointF> RXList;
-    QList<QPointF> RYList;
-    QList<QPointF> RZList;
-
-    QList<QPointF> VXList;
-    QList<QPointF> VYList;
-    QList<QPointF> VZList;
-
-    QList<QPointF> WboXList;
-    QList<QPointF> WboYList;
-    QList<QPointF> WboZList;
-
-    QList<QPointF> Qbo0List;
-    QList<QPointF> Qbo1List;
-    QList<QPointF> Qbo2List;
-    QList<QPointF> Qbo3List;
-
-    QList<QPointF> zAngleList;
-
-public:
-    void draw_plot(Plot* plot, QList<QPointF>& dataList, QValueAxis& axisX, QValueAxis& axisY, double timeStep, double data);
-
 signals:
     void show_diag_window_signal();
 
 signals:
-    void send_command_signal(std::shared_ptr<QByteArray> command, CommuDataType dataType);
     void commu_start_signal(quint16 bindPort,QString targetIP,quint16 targetPort);
     void commu_stop_signal();
 
@@ -101,13 +69,13 @@ public slots:
 private slots:
     void on_OpenNewWidgetButton_2_clicked();
     void on_ClearUdpClientTextButton_clicked();
-    void on_RunPlatformButton_clicked();
     void on_checkBox_8_stateChanged(int arg1);
     void on_StartButton_clicked();
     void on_StopButton_clicked();
-    void on_StopPlatformButton_clicked();
+    void on_CleanCanvasButton_clicked();
 
 private:
+void clear_data();
     std::unique_ptr<Ui::visualWin> ui;
 };
-#endif // MAINWINDOW_H
+#endif // VISUALIZATION_WINDOW_H

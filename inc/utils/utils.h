@@ -18,9 +18,9 @@ public:
     QPen pen;
 
 public:
-    void refreshAxes(QList<QPointF> dataList, QValueAxis &axisX, QValueAxis &axisY,
-                     float xCurrMinRange, float xCurrMaxRange, float yCurrMinRange, float yCurrMaxRange);
-    void updateDataList(QList<QPointF>& dataList, QValueAxis &axisX, QValueAxis &axisY, float xValue, float yValue,
+    void refreshAxes(QValueAxis &axisX, QValueAxis &axisY, float xCurrMinRange, float xCurrMaxRange, 
+                    float yCurrMinRange, float yCurrMaxRange);
+    void updateDataList(QValueAxis &axisX, QValueAxis &axisY, float xValue, float yValue,
                         float xCurrMinRange=-1, float xCurrMaxRange=-1, float yCurrMinRange=-1, float yCurrMaxRange=-1);
 
 private:

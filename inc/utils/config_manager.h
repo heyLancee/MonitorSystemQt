@@ -23,24 +23,15 @@ private:
     QMap<QString, QJsonObject> configCache;
     
     bool loadJsonFile(const QString& path, QJsonObject& output);
-};
-
-class BaseConfig
-{
-public:
-    static BaseConfig& getInstance();
-
-private:
-    BaseConfig();
-    ~BaseConfig()=default;
 
 public:
     QJsonObject baseConfig;
-    double draw_time_max;
-    int axis_refresh_freq;
+    QJsonObject commConfig;
 };
 
+
 #define theConfigManager ConfigManager::getInstance()
-#define theBaseConfig BaseConfig::getInstance()
+#define theBaseConfig theConfigManager.baseConfig
+#define theCommuConfig theConfigManager.commConfig
 
 #endif // CONFIG_MANAGER_H

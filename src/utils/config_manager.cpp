@@ -16,6 +16,10 @@ bool ConfigManager::init(const QString& mainConfigPath) {
         qDebug() << "Failed to load main config file";
         return false;
     }
+
+    baseConfig = this->getConfig("base_config");
+    commConfig = this->getConfig("commu_config");
+
     return true;
 }
 
@@ -34,8 +38,10 @@ QJsonObject ConfigManager::getConfig(const QString& module) {
     
     // 加载子配置文件
     QString configPath = configs[module].toString();
+    QString projectPath = qgetenv("PROJECT_PATH");
+
     QJsonObject moduleConfig;
-    if (!loadJsonFile(configPath, moduleConfig)) {
+    if (!loadJsonFile(projectPath+configPath, moduleConfig)) {
         qDebug() << "Failed to load config for module:" << module;
         return QJsonObject();
     }
@@ -63,15 +69,3 @@ bool ConfigManager::loadJsonFile(const QString& path, QJsonObject& output) {
     return true;
 }
 
-BaseConfig::BaseConfig()
-{
-    this->baseConfig = theConfigManager.getConfig("base_config");
-    this->draw_time_max = baseConfig["draw_time_max"].toDouble();
-    this->axis_refresh_freq = baseConfig["axis_refresh_freq"].toInt();
-}
-
-BaseConfig& BaseConfig::getInstance()
-{
-    static BaseConfig instance;
-    return instance;
-}

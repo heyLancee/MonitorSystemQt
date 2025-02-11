@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/test_tcpclient.dir/test_tcpclient.cpp.o -o ../../bin/test_tcpclient  /usr/lib/x86_64-linux-gnu/libQt5Network.so.5.15.3 -lpthread /usr/lib/x86_64-linux-gnu/libQt5Core.so.5.15.3 

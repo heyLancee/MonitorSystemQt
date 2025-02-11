@@ -9,7 +9,7 @@
 #include "utils/config_manager.h"
 #include "data_processor.h"
 
-class udpSocket
+class udpSocket : public QObject
 {
 public:
     udpSocket();
@@ -29,9 +29,11 @@ class Communication : public QObject
 {
     Q_OBJECT
 public:
-    explicit Communication(QObject *parent = nullptr);
-    ~Communication();
-    
+    Communication();
+    ~Communication() = default;
+
+    bool init();
+
 signals:
     void commu_start_success_signal();
     void commu_stop_success_signal();
@@ -45,11 +47,10 @@ public slots:
 
 private:
     std::unique_ptr<udpSocket> udp;
-    QJsonObject udp_config;
-    QByteArray frameHeadArray;
-    QByteArray frameTailArray;
     
     std::unique_ptr<DataProcessor> dataProcessor;
+
+    bool isInit = false;
 };
 
 #endif // UDPTHREAD_H

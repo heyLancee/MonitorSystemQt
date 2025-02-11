@@ -56,22 +56,6 @@ void visualWin::commu_stop_success_slot()
     ui->plainUdpClientTextEdit->appendPlainText("Unbind Port Success");
 }
 
-/**
- * @brief 通用绘图函数
- * 
- * @param plot 指向Plot对象的指针
- * @param dataList 数据列表
- * @param axisX X轴
- * @param axisY Y轴
- * @param timeStep 时间步长
- * @param data 数据
- */
-void visualWin::draw_plot(Plot* plot, QList<QPointF>& dataList, QValueAxis& axisX, QValueAxis& axisY, double timeStep, double data)
-{
-    plot->updateDataList(dataList, axisX, axisY, timeStep, data);
-    plot->series->replace(dataList);
-}
-
 void visualWin::draw_data(std::shared_ptr<QVariant> unpackedData, CommuDataType dataType)
 {
     if (dataType != telemetryType || unpackedData == nullptr)
@@ -81,40 +65,66 @@ void visualWin::draw_data(std::shared_ptr<QVariant> unpackedData, CommuDataType 
 
     /* 画图定时器timeout槽函数 */
     if (ui->checkBox->isChecked()) {
-        draw_plot(plotWX.get(), WXList, *plotWX->axisX, *plotWX->axisY, udpData.timeStep, udpData.wx);
-        draw_plot(plotWY.get(), WYList, *plotWY->axisX, *plotWY->axisY, udpData.timeStep, udpData.wy);
-        draw_plot(plotWZ.get(), WZList, *plotWZ->axisX, *plotWZ->axisY, udpData.timeStep, udpData.wz);
+        plotWX->updateDataList(*plotWX->axisX, *plotWX->axisY, udpData.timeStep, udpData.wx);
+        plotWY->updateDataList(*plotWY->axisX, *plotWY->axisY, udpData.timeStep, udpData.wy);
+        plotWZ->updateDataList(*plotWZ->axisX, *plotWZ->axisY, udpData.timeStep, udpData.wz);
     }
     if (ui->checkBox_2->isChecked()) {
-        draw_plot(plotQ0.get(), Q0List, *plotQ0->axisX, *plotQ0->axisY, udpData.timeStep, udpData.q0);
-        draw_plot(plotQ1.get(), Q1List, *plotQ1->axisX, *plotQ1->axisY, udpData.timeStep, udpData.q1);
-        draw_plot(plotQ2.get(), Q2List, *plotQ2->axisX, *plotQ2->axisY, udpData.timeStep, udpData.q2);
-        draw_plot(plotQ3.get(), Q3List, *plotQ3->axisX, *plotQ3->axisY, udpData.timeStep, udpData.q3);
+        plotQ0->updateDataList(*plotQ0->axisX, *plotQ0->axisY, udpData.timeStep, udpData.q0);
+        plotQ1->updateDataList(*plotQ1->axisX, *plotQ1->axisY, udpData.timeStep, udpData.q1);
+        plotQ2->updateDataList(*plotQ2->axisX, *plotQ2->axisY, udpData.timeStep, udpData.q2);
+        plotQ3->updateDataList(*plotQ3->axisX, *plotQ3->axisY, udpData.timeStep, udpData.q3);
     }
     if (ui->checkBox_3->isChecked()) {
-        draw_plot(plotRX.get(), RXList, *plotRX->axisX, *plotRX->axisY, udpData.timeStep, udpData.rx);
-        draw_plot(plotRY.get(), RYList, *plotRY->axisX, *plotRY->axisY, udpData.timeStep, udpData.ry);
-        draw_plot(plotRZ.get(), RZList, *plotRZ->axisX, *plotRZ->axisY, udpData.timeStep, udpData.rz);
+        plotRX->updateDataList(*plotRX->axisX, *plotRX->axisY, udpData.timeStep, udpData.rx);
+        plotRY->updateDataList(*plotRY->axisX, *plotRY->axisY, udpData.timeStep, udpData.ry);
+        plotRZ->updateDataList(*plotRZ->axisX, *plotRZ->axisY, udpData.timeStep, udpData.rz);
     }
     if (ui->checkBox_4->isChecked()) {
-        draw_plot(plotVX.get(), VXList, *plotVX->axisX, *plotVX->axisY, udpData.timeStep, udpData.vx);
-        draw_plot(plotVY.get(), VYList, *plotVY->axisX, *plotVY->axisY, udpData.timeStep, udpData.vy);
-        draw_plot(plotVZ.get(), VZList, *plotVZ->axisX, *plotVZ->axisY, udpData.timeStep, udpData.vz);
+        plotVX->updateDataList(*plotVX->axisX, *plotVX->axisY, udpData.timeStep, udpData.vx);
+        plotVY->updateDataList(*plotVY->axisX, *plotVY->axisY, udpData.timeStep, udpData.vy);
+        plotVZ->updateDataList(*plotVZ->axisX, *plotVZ->axisY, udpData.timeStep, udpData.vz);
     }
     if (ui->checkBox_5->isChecked()) {
-        draw_plot(plotWboX.get(), WboXList, *plotWboX->axisX, *plotWboX->axisY, udpData.timeStep, udpData.wboX);
-        draw_plot(plotWboY.get(), WboYList, *plotWboX->axisX, *plotWboX->axisY, udpData.timeStep, udpData.wboY);
-        draw_plot(plotWboZ.get(), WboZList, *plotWboZ->axisX, *plotWboZ->axisY, udpData.timeStep, udpData.wboZ);
+        plotWboX->updateDataList(*plotWboX->axisX, *plotWboX->axisY, udpData.timeStep, udpData.wboX);
+        plotWboY->updateDataList(*plotWboY->axisX, *plotWboY->axisY, udpData.timeStep, udpData.wboY);
+        plotWboZ->updateDataList(*plotWboZ->axisX, *plotWboZ->axisY, udpData.timeStep, udpData.wboZ);
     }
     if (ui->checkBox_6->isChecked()) {
-        draw_plot(plotQbo0.get(), Qbo0List, *plotQbo0->axisX, *plotQbo0->axisY, udpData.timeStep, udpData.qbo0);
-        draw_plot(plotQbo1.get(), Qbo1List, *plotQbo1->axisX, *plotQbo1->axisY, udpData.timeStep, udpData.qbo1);
-        draw_plot(plotQbo2.get(), Qbo2List, *plotQbo2->axisX, *plotQbo2->axisY, udpData.timeStep, udpData.qbo2);
-        draw_plot(plotQbo3.get(), Qbo3List, *plotQbo3->axisX, *plotQbo3->axisY, udpData.timeStep, udpData.qbo3);
+        plotQbo0->updateDataList(*plotQbo0->axisX, *plotQbo0->axisY, udpData.timeStep, udpData.qbo0);
+        plotQbo1->updateDataList(*plotQbo1->axisX, *plotQbo1->axisY, udpData.timeStep, udpData.qbo1);
+        plotQbo2->updateDataList(*plotQbo2->axisX, *plotQbo2->axisY, udpData.timeStep, udpData.qbo2);
+        plotQbo3->updateDataList(*plotQbo3->axisX, *plotQbo3->axisY, udpData.timeStep, udpData.qbo3);
     }
     if (ui->checkBox_7->isChecked()) {
-        draw_plot(plotZAngle.get(), zAngleList, *plotZAngle->axisX, *plotZAngle->axisY, udpData.timeStep, udpData.zAngle);
+        plotZAngle->updateDataList(*plotZAngle->axisX, *plotZAngle->axisY, udpData.timeStep, udpData.zAngle);
     }
+}
+
+void visualWin::on_CleanCanvasButton_clicked()
+{
+    // 清除所有数据
+    plotWX->series->clear();
+    plotWY->series->clear();
+    plotWZ->series->clear();
+    plotQ0->series->clear();
+    plotQ1->series->clear();
+    plotQ2->series->clear();
+    plotQ3->series->clear();
+    plotRX->series->clear();
+    plotRY->series->clear();
+    plotRZ->series->clear();
+    plotVX->series->clear();
+    plotVY->series->clear();
+    plotVZ->series->clear();
+    plotWboX->series->clear();
+    plotWboY->series->clear();
+    plotWboZ->series->clear();
+    plotQbo0->series->clear();
+    plotQbo1->series->clear();
+    plotQbo2->series->clear();
+    plotQbo3->series->clear();
+    plotZAngle->series->clear();
 }
 
 void visualWin::on_OpenNewWidgetButton_2_clicked()
@@ -165,20 +175,3 @@ void visualWin::on_StopButton_clicked()
     emit this->commu_stop_signal(); // 端口解绑信号，发送给子线程
 }
 
-
-void visualWin::on_RunPlatformButton_clicked()
-{
-    /* 运行仿真平台按钮 */
-    float runTime = ui->simulationTimeSpin->value();
-    QByteArray cmd(reinterpret_cast<const char*>(&runTime), sizeof(float));
-
-    std::shared_ptr<QByteArray> cmdPtr = std::make_shared<QByteArray>(cmd);
-    emit this->send_command_signal(cmdPtr, CommuDataType::runPlatformType);
-}
-
-void visualWin::on_StopPlatformButton_clicked()
-{
-    /* 停止仿真平台按钮 */
-    std::shared_ptr<QByteArray> cmdPtr = std::make_shared<QByteArray>();
-    emit this->send_command_signal(cmdPtr, CommuDataType::stopPlatformType);
-}

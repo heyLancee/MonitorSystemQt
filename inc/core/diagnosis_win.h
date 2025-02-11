@@ -18,13 +18,12 @@ class DiagnosisWin : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit DiagnosisWin(QMainWindow *parent = nullptr);
+    DiagnosisWin(QMainWindow *parent = nullptr);
     ~DiagnosisWin()=default;
 
     std::unique_ptr<class Plot> plotAlgo1;
     std::unique_ptr<class Plot> plotAlgo2;
 
-    void draw_plot(Plot *plot, QList<QPointF> &dataList, QValueAxis &axisX, QValueAxis &axisY, double timeStep, double data);
     void draw_data(std::shared_ptr<QVariant> unpackedData, CommuDataType dataType);
 
 signals:
@@ -36,8 +35,6 @@ private slots:
 
 private:
     std::unique_ptr<Ui::DiagnosisWin> ui;
-    QList<QPointF> faultRes1List;
-    QList<QPointF> faultRes2List;
 
 };
 
