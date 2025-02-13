@@ -64,6 +64,19 @@ typedef struct{
     float timeStep;
     float faultValue;
     int faultType;
+
+    QByteArray toByteArray() const {
+        QByteArray data;
+        QDataStream stream(&data, QIODevice::WriteOnly);
+        stream.setByteOrder(QDataStream::LittleEndian);
+
+        stream << timeStep
+               << faultValue
+               << faultType;
+
+        return data;
+    }
+
     bool fromByteArray(const QByteArray& data) {
         if (data.isEmpty()) {
             return false;
@@ -107,6 +120,23 @@ typedef struct{
         
         return data;
     }
+
+    bool fromByteArray(const QByteArray& data) {
+        if (data.isEmpty()) {
+            return false;
+        }
+
+        QDataStream stream(data);
+        stream.setByteOrder(QDataStream::LittleEndian);
+
+        stream >> faultTimeLow >> faultTimeUp
+               >> faultAttLow >> faultAttUp
+               >> faultType
+               >> gyroGroup >> gyroID
+               >> runMode;
+               
+        return stream.status() == QDataStream::Ok;
+    }
 } faultParaStruct;
 
 typedef struct {
@@ -127,15 +157,28 @@ typedef struct {
         
         return data;
     }
+
+    bool fromByteArray(const QByteArray& data) {
+        if (data.isEmpty()) {
+            return false;
+        }
+
+        QDataStream stream(data);
+        stream.setByteOrder(QDataStream::LittleEndian);
+
+        stream >> gyroIsChecked >> starIsChecked
+               >> sunIsChecked >> rwIsChecked
+               >> path;
+
+        return stream.status() == QDataStream::Ok;
+    }
 } saveDataStruct;
 
 enum CommuDataType : uint8_t {
     telemetryType = 0,
     faultResultType = 1,
-    runPlatformType = 2,
-    stopPlatformType = 3,
-    faultParaType = 4,
-    saveDataType = 5
+    faultParaType = 2,
+    saveDataType = 3
 };
 
 class PackageManager {
