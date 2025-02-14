@@ -47,27 +47,6 @@ void DiagnosisWin::on_cmdInjectButton_clicked()
     emit this->send_command_signal(cmdPtr, CommuDataType::faultParaType);
 }
 
-void DiagnosisWin::on_saveDataButton_clicked()
-{
-    /* 保存数据按钮 */
-    saveDataStruct saveData;
-
-    saveData.gyroIsChecked = ui->gyroCheckBox->isChecked();
-    saveData.starIsChecked = ui->starCheckBox->isChecked();
-    saveData.sunIsChecked = ui->sunCheckBox->isChecked();
-    saveData.rwIsChecked = ui->rwCheckBox->isChecked();
-
-    // 保存路径
-    saveData.path = QFileDialog::getExistingDirectory(this, "选择文件夹", "/");
-    if (saveData.path.isEmpty())
-        return;
-    
-    QByteArray cmd = saveData.toByteArray();
-    std::shared_ptr<QByteArray> cmdPtr = std::make_shared<QByteArray>(cmd);
-    emit this->send_command_signal(cmdPtr, CommuDataType::saveDataType);
-}
-
-
 void DiagnosisWin::draw_data(std::shared_ptr<QVariant> unpackedData, CommuDataType dataType)
 {
     if (dataType != faultResultType || unpackedData == nullptr)

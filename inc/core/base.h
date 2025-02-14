@@ -139,46 +139,10 @@ typedef struct{
     }
 } faultParaStruct;
 
-typedef struct {
-    bool gyroIsChecked;
-    bool starIsChecked;
-    bool sunIsChecked;
-    bool rwIsChecked;
-    QString path;
-
-    QByteArray toByteArray() const {
-        QByteArray data;
-        QDataStream stream(&data, QIODevice::WriteOnly);
-        stream.setByteOrder(QDataStream::LittleEndian);
-        
-        stream << gyroIsChecked << starIsChecked
-               << sunIsChecked << rwIsChecked
-               << path;
-        
-        return data;
-    }
-
-    bool fromByteArray(const QByteArray& data) {
-        if (data.isEmpty()) {
-            return false;
-        }
-
-        QDataStream stream(data);
-        stream.setByteOrder(QDataStream::LittleEndian);
-
-        stream >> gyroIsChecked >> starIsChecked
-               >> sunIsChecked >> rwIsChecked
-               >> path;
-
-        return stream.status() == QDataStream::Ok;
-    }
-} saveDataStruct;
-
 enum CommuDataType : uint8_t {
     telemetryType = 0,
     faultResultType = 1,
     faultParaType = 2,
-    saveDataType = 3
 };
 
 class PackageManager {

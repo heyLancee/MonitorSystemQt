@@ -31,7 +31,6 @@ signals:
 
 private slots:
     void on_cmdInjectButton_clicked();
-    void on_saveDataButton_clicked();
 
 private:
     std::unique_ptr<Ui::DiagnosisWin> ui;

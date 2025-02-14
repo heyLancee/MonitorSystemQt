@@ -1,0 +1,10 @@
+release/base.o
+release/faultDiagnosis.o
+release/main.o
+release/mainWindow.o
+release/udpThread.o
+release/utils.o
+release/qrc_Resources.o
+release/moc_faultDiagnosis.o
+release/moc_mainWindow.o
+release/moc_udpThread.o
