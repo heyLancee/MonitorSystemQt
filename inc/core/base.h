@@ -8,7 +8,6 @@ typedef struct
 {
     float timeStep;
     float wx, wy, wz;
-    
     float q0, q1, q2, q3;
     float rx, ry, rz;
     float vx, vy, vz;
@@ -16,6 +15,8 @@ typedef struct
     float qbo0, qbo1, qbo2, qbo3;
     float tx, ty, tz;
     float zAngle;
+
+    float torqueX, torqueY, torqueZ;
 
     bool fromByteArray(const QByteArray& data) {
         if (data.isEmpty()) {
@@ -33,7 +34,8 @@ typedef struct
                >> wboX >> wboY >> wboZ
                >> qbo0 >> qbo1 >> qbo2 >> qbo3
                >> tx >> ty >> tz
-               >> zAngle;
+               >> zAngle
+               >> torqueX >> torqueY >> torqueZ;
 
         return stream.status() == QDataStream::Ok;
     }
@@ -51,7 +53,8 @@ typedef struct
                << wboX << wboY << wboZ
                << qbo0 << qbo1 << qbo2 << qbo3
                << tx << ty << tz
-               << zAngle;
+               << zAngle
+               << torqueX << torqueY << torqueZ;
 
         return data;
     }
