@@ -143,9 +143,9 @@ typedef struct{
 } faultParaStruct;
 
 enum CommuDataType : uint8_t {
-    telemetryType = 0,
-    faultResultType = 1,
-    faultParaType = 2,
+    telemetryType = 1,
+    faultResultType = 2,
+    faultParaType = 3,
 };
 
 class PackageManager {
