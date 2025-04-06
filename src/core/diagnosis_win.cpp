@@ -12,47 +12,45 @@ DiagnosisWin::DiagnosisWin(QMainWindow *parent) : QMainWindow(parent), ui(std::u
     ui->chartView_Algo2->setChart(plotAlgo2->chart.get());
 
     // 注册faultResultStruct类型
-    qRegisterMetaType<faultResultStruct>();
+    qRegisterMetaType<FaultResultStruct>();
+    qRegisterMetaType<FaultDataStruct>();
 }
 
 void DiagnosisWin::on_cmdInjectButton_clicked()
 {
-    faultParaStruct faultPara;
-    // 故障注入
-    faultPara.faultTimeLow = ui->faultTimeDoubleSpin->value();
-    faultPara.faultTimeUp = ui->faultTimeDoubleSpin_2->value();
-    faultPara.faultAttLow = ui->faultAttDoubleSpin->value();
-    faultPara.faultAttUp = ui->faultAttDoubleSpin_2->value();
-    faultPara.faultType = ui->faultTypeCombo->currentIndex();
+    // 初步测试
+    float startTime = ui->faultStartTime->value();
+    float endTime = ui->faultEndTime->value();
+    FaultType type = FaultType(ui->faultType->currentIndex() + 1);
 
-    faultPara.gyroGroup = ui->gyroGroupSpin->value()-1;
-    faultPara.gyroID = ui->gyroIDSpin->value()-1;
+    QString paramsString = ui->faultParams->text();
+    // 将字符串分割成浮点数列表
+    QStringList paramsList = paramsString.split(" ");
 
-    if (ui->rateDampRadio->isChecked())
-    {
-        faultPara.runMode = 1;
-    }
-    else if (ui->sunPointRadio->isChecked())
-    {
-        faultPara.runMode = 2;
-    }
-    else
-    {
-        faultPara.runMode = 3;
+    FaultParams params;
+    params.params.resize(paramsList.size());
+    for (int i = 0; i < paramsList.size(); ++i) {
+        params.params[i] = paramsList[i].toFloat();
     }
 
-    QByteArray cmd = faultPara.toByteArray();
+    FaultDataStruct faultData;
+    faultData.faultStartTime = startTime;
+    faultData.faultEndTime = endTime;
+    faultData.faultType = type;
+    faultData.faultParams = params;
+
+    QByteArray cmd = faultData.toByteArray();
     std::shared_ptr<QByteArray> cmdPtr = std::make_shared<QByteArray>(cmd);
 
-    emit this->send_command_signal(cmdPtr, CommuDataType::faultParaType);
+    emit this->send_command_signal(cmdPtr, CommuDataType::FAULT_PARA);
 }
 
 void DiagnosisWin::draw_data(std::shared_ptr<QVariant> unpackedData, CommuDataType dataType)
 {
-    if (dataType != faultResultType || unpackedData == nullptr)
+    if (dataType != CommuDataType::FAULT_RESULT || unpackedData == nullptr)
         return;
 
-    faultResultStruct udpData = unpackedData->value<faultResultStruct>();
+    FaultResultStruct udpData = unpackedData->value<FaultResultStruct>();
 
     /* 画图定时器timeout槽函数 */
     if (udpData.faultType == 1) {

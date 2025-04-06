@@ -8,7 +8,7 @@ void DataProcessor::processData(std::shared_ptr<QByteArray> datagram) {
     CommuDataType dataType;
     QByteArray data;
 
-    data = QByteArray::fromStdString(thePackageManager.unpackage(datagram->toStdString(), dataType));
+    data = thePackageManager.unpackage(*datagram, dataType);
 
     if (data.isEmpty()) {
         qWarning() << "Unpackage failed.";
@@ -17,8 +17,8 @@ void DataProcessor::processData(std::shared_ptr<QByteArray> datagram) {
 
     std::shared_ptr<QVariant> unpackedDataVariant = std::make_shared<QVariant>();
     switch (dataType) {
-        case CommuDataType::telemetryType: {
-            telemetryStruct telemetryData;
+        case CommuDataType::TELEMETRY: {
+            TelemetryStruct telemetryData;
             if (!telemetryData.fromByteArray(data)) {
                 qWarning() << "Failed to unpack telemetry data.";
                 return;
@@ -27,8 +27,8 @@ void DataProcessor::processData(std::shared_ptr<QByteArray> datagram) {
             *unpackedDataVariant = QVariant::fromValue(telemetryData);
             break;
         }
-        case CommuDataType::faultResultType: {
-            faultResultStruct faultResultData;
+        case CommuDataType::FAULT_RESULT: {
+            FaultResultStruct faultResultData;
             if (!faultResultData.fromByteArray(data)) {
                 qWarning() << "Failed to unpack fault result data.";
                 return;

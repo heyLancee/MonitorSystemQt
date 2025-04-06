@@ -24,6 +24,8 @@ public:
     visualWin(QMainWindow *parent = nullptr);
     ~visualWin();
 
+    void set_comm_params(int localPort, QString remoteIP, int remotePort);
+
 public:
     std::unique_ptr<class Plot> plotWX;
     std::unique_ptr<class Plot> plotWY;

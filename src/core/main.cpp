@@ -22,11 +22,21 @@ int main(int argc, char *argv[])
     // 初始化包管理器
     QJsonObject platformCommands = theCommuConfig["PlatformCommands"].toObject();
     thePackageManager.setPackageParams(
-        platformCommands["FrameHead"].toString().toStdString(),
-        platformCommands["FrameTail"].toString().toStdString()
+        platformCommands["FrameHead"].toString().toUtf8(),
+        platformCommands["FrameTail"].toString().toUtf8()
     );
 
+    // 本地参数
+    QJsonObject localParams = theCommuConfig["LocalParams"].toObject();
+    int localPort = localParams["LocalPort"].toInt();
+
+    // 远程参数
+    QJsonObject remoteParams = theCommuConfig["RemoteParams"].toObject();
+    QString remoteIP = remoteParams["RemoteIP"].toString();
+    int remotePort = remoteParams["RemotePort"].toInt();
+
     MonitorSystem monitorSystemWindow;
+    monitorSystemWindow.set_comm_params(localPort, remoteIP, remotePort);
 
     return app.exec();
 }

@@ -36,12 +36,19 @@ visualWin::visualWin(QMainWindow *parent): QMainWindow(parent), ui(std::unique_p
     plotZAngle = std::unique_ptr<Plot>(new Plot(ui->chartView_zAngular, Qt::red, Qt::DashLine, "ZAngle", "Time(s)", "", 0, 100, -5, 5));
 
     // 注册telemetryStruct类型
-    qRegisterMetaType<telemetryStruct>();
+    qRegisterMetaType<TelemetryStruct>();
 }
 
 visualWin::~visualWin()
 {
     // std::unique_ptr will automatically handle deletion
+}
+
+void visualWin::set_comm_params(int localPort, QString remoteIP, int remotePort)
+{
+    ui->BindPortspinBox->setValue(localPort);
+    ui->TargetAddresslineEdit->setText(remoteIP);
+    ui->TargetPortspinBox->setValue(remotePort);
 }
 
 void visualWin::commu_start_success_slot()
@@ -58,10 +65,10 @@ void visualWin::commu_stop_success_slot()
 
 void visualWin::draw_data(std::shared_ptr<QVariant> unpackedData, CommuDataType dataType)
 {
-    if (dataType != telemetryType || unpackedData == nullptr)
+    if (dataType != CommuDataType::TELEMETRY || unpackedData == nullptr)
         return;
 
-    telemetryStruct udpData = unpackedData->value<telemetryStruct>();
+    TelemetryStruct udpData = unpackedData->value<TelemetryStruct>();
 
     /* 画图定时器timeout槽函数 */
     if (ui->checkBox->isChecked()) {

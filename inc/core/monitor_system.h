@@ -18,6 +18,7 @@ public:
 public slots:
     void startCommunication(quint16 bindPort, QString targetIP, quint16 targetPort);
     void stopCommunication();
+    void set_comm_params(int localPort, QString remoteIP, int remotePort);
 
 private:
     std::unique_ptr<visualWin> visualWindow;

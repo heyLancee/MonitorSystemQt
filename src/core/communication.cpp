@@ -36,7 +36,7 @@ udpSocket::udpSocket()
 
 void Communication::send_command_slot(std::shared_ptr<QByteArray> command, CommuDataType dataType)
 {
-    QByteArray packet = QByteArray::fromStdString(thePackageManager.package(command->toStdString(), dataType));
+    QByteArray packet = thePackageManager.package(*command, dataType);
     // 通过UDP发送数据包
     this->udp->socket->writeDatagram(packet, this->udp->targetHostAddress, this->udp->targetPort);
 }

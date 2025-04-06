@@ -2,5 +2,12 @@
     "PlatformCommands": {
         "FrameHead": "SSSSSSSS",
         "FrameTail": "EEEEEEEE"
+    },
+    "LocalParams": {
+        "LocalPort": 1200
+    },
+    "RemoteParams":{
+        "RemoteIP": "192.168.233.1",
+        "RemotePort": 5010
     }
 } 

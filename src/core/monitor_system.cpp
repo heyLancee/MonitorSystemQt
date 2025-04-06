@@ -34,7 +34,7 @@ MonitorSystem::MonitorSystem(QMainWindow *parent)
     // 故障诊断界面显示
     connect(this->visualWindow.get(), &visualWin::show_diag_window_signal, this->diagWindow.get(), [&](){
         this->diagWindow->show();
-        this->visualWindow->hide();
+        this->visualWindow->show();
     });
 }
 
@@ -51,6 +51,11 @@ void MonitorSystem::stopCommunication()
     if (thread->isRunning()) {        
         QMetaObject::invokeMethod(this->communication.get(), "commu_stop_slot");
     }
+}
+
+void MonitorSystem::set_comm_params(int localPort, QString remoteIP, int remotePort)
+{
+    this->visualWindow->set_comm_params(localPort, remoteIP, remotePort);
 }
 
 MonitorSystem::~MonitorSystem()
