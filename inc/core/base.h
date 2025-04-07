@@ -106,6 +106,7 @@ enum class FaultType : uint8_t {
 };
 
 struct FaultParams {
+    FaultType faultType;
     std::vector<double> params;
     
     // Fault parameters
@@ -115,6 +116,12 @@ struct FaultParams {
     double lambda_m = 0.0;     // Multiplicative coefficient
     double e = 0.0;            // Partial failure coefficient
     double b = 0.0;            // Bias coefficient
+
+    float faultStartTime = 0.0f;  // Fault start time
+    float faultEndTime = 0.0f;    // Fault end time
+    
+    uint32_t gyro_fault_idx = 0;   // Gyro fault index
+    uint32_t flywheel_fault_idx = 0; // Flywheel fault index
 
     static size_t getExpectedParamCount(FaultType type) {
         static const std::map<FaultType, size_t> PARAM_COUNTS = {
@@ -129,13 +136,13 @@ struct FaultParams {
         return PARAM_COUNTS.at(type);
     }
 
-    void validateAndAssignParams(FaultType type) {
-        size_t expected_count = getExpectedParamCount(type);
+    void validateAndAssignParams() {
+        size_t expected_count = getExpectedParamCount(faultType);
         if (params.size() != expected_count) {
             throw std::runtime_error("Parameter count mismatch for fault type");
         }
 
-        switch (type) {
+        switch (faultType) {
             case FaultType::GYRO_INTERMITTENT_FAULT:
                 f1 = params[0];
                 break;
@@ -162,71 +169,107 @@ struct FaultParams {
         }
     }
 
-    QByteArray toByteArray() const {
-        QByteArray data;
-        data.resize(params.size() * sizeof(double));
-        double* values = reinterpret_cast<double*>(data.data());
-        for (size_t i = 0; i < params.size(); ++i) {
-            values[i] = params[i];
-        }
-        return data;
-    }
+    // QByteArray toBytes() const {
+    //     QByteArray data;
+    //     data.resize(params.size() * sizeof(double));
+    //     double* values = reinterpret_cast<double*>(data.data());
+    //     for (size_t i = 0; i < params.size(); ++i) {
+    //         values[i] = params[i];
+    //     }
+    //     return data;
+    // }
 
-    static FaultParams fromByteArray(const QByteArray& data, FaultType type) {
-        size_t num_params = getExpectedParamCount(type);
-        if (data.size() != num_params * sizeof(double)) {
-            throw std::runtime_error("Invalid data length for fault type");
-        }
+    // static FaultParams fromBytes(const QByteArray& data, FaultType type) {
+    //     size_t num_params = getExpectedParamCount(type);
+    //     if (data.size() != static_cast<int>(num_params * sizeof(double))) {
+    //         throw std::runtime_error("Invalid data length for fault type");
+    //     }
 
-        const double* values = reinterpret_cast<const double*>(data.constData());
-        FaultParams result;
-        result.params.assign(values, values + num_params);
-        result.validateAndAssignParams(type);
-        return result;
-    }
-};
-Q_DECLARE_METATYPE(FaultParams)
-
-struct FaultDataStruct {
-    float faultStartTime;
-    float faultEndTime;
-    FaultType faultType;
-    FaultParams faultParams;
+    //     const double* values = reinterpret_cast<const double*>(data.constData());
+    //     std::vector<double> params(values, values + num_params);
+    //     FaultParams fault_params = FaultParams();
+    //     fault_params.faultType = type;
+    //     fault_params.params = params;
+    //     fault_params.validateAndAssignParams();
+    //     return fault_params;
+    // }
 
     QByteArray toByteArray() const {
         QByteArray data;
-        data.resize(2 * sizeof(float) + sizeof(uint32_t));
+        data.resize(2 * sizeof(float) + 2 * sizeof(uint32_t));  // start/end time + fault type + component id
+        
         float* floatData = reinterpret_cast<float*>(data.data());
         uint32_t* intData = reinterpret_cast<uint32_t*>(floatData + 2);
         
         floatData[0] = faultStartTime;
         floatData[1] = faultEndTime;
-        *intData = static_cast<uint32_t>(faultType);
+        intData[0] = static_cast<uint32_t>(faultType);
         
-        data.append(faultParams.toByteArray());
+        // Determine component ID based on fault type
+        if (faultType == FaultType::GYRO_INTERMITTENT_FAULT || 
+            faultType == FaultType::GYRO_SLOW_FAULT || 
+            faultType == FaultType::GYRO_MULTI_FAULT) {
+            intData[1] = gyro_fault_idx;
+        } else if (faultType == FaultType::FLYWHEEL_PARTIAL_LOSS || 
+                   faultType == FaultType::FLYWHEEL_BIAS || 
+                   faultType == FaultType::FLYWHEEL_COMPREHENSIVE) {
+            intData[1] = flywheel_fault_idx;
+        } else {
+            intData[1] = 0;
+        }
+        
+        QByteArray data_params;
+        data_params.resize(params.size() * sizeof(double));
+        double* params_values = reinterpret_cast<double*>(data_params.data());
+        for (size_t i = 0; i < params.size(); ++i) {
+            params_values[i] = params[i];
+        }
+        
+        data.append(data_params);
         return data;
     }
 
-    static FaultDataStruct fromByteArray(const QByteArray& data) {
-        if (data.size() < 12) {  // 2 floats + 1 int
+    static FaultParams fromByteArray(const QByteArray& data) {
+        if (data.size() < 16) {  // 2 floats + 2 ints = 16 bytes
             throw std::runtime_error("Data too short");
         }
 
         const float* floatData = reinterpret_cast<const float*>(data.constData());
         const uint32_t* intData = reinterpret_cast<const uint32_t*>(floatData + 2);
         
-        FaultDataStruct result;
-        result.faultStartTime = floatData[0];
-        result.faultEndTime = floatData[1];
-        result.faultType = static_cast<FaultType>(*intData);
+        FaultType type = static_cast<FaultType>(intData[0]);
+        uint32_t componentId = intData[1];
         
-        QByteArray paramsData = data.mid(12);
-        result.faultParams = FaultParams::fromByteArray(paramsData, result.faultType);
+        QByteArray paramsData = data.mid(16);
         
-        return result;
+
+        size_t num_params = getExpectedParamCount(type);
+        if (paramsData.size() != static_cast<int>(num_params * sizeof(double))) {
+            throw std::runtime_error("Invalid data length for fault type");
+        }
+        const double* values = reinterpret_cast<const double*>(paramsData.constData());
+        std::vector<double> params(values, values + num_params);
+
+        FaultParams fault_params = FaultParams();
+        fault_params.faultType = type;
+        fault_params.params = params;
+        fault_params.faultStartTime = floatData[0];
+        fault_params.faultEndTime = floatData[1];
+        if (type == FaultType::GYRO_INTERMITTENT_FAULT || 
+            type == FaultType::GYRO_SLOW_FAULT || 
+            type == FaultType::GYRO_MULTI_FAULT) {
+                fault_params.gyro_fault_idx = componentId;
+        } else if (type == FaultType::FLYWHEEL_PARTIAL_LOSS || 
+                   type == FaultType::FLYWHEEL_BIAS || 
+                   type == FaultType::FLYWHEEL_COMPREHENSIVE) {
+            fault_params.flywheel_fault_idx = componentId;
+        }
+        fault_params.validateAndAssignParams();
+        
+        return fault_params;
     }
 };
-Q_DECLARE_METATYPE(FaultDataStruct)
+Q_DECLARE_METATYPE(FaultParams)
 
 enum class CommuDataType : uint32_t {
     TELEMETRY = 1,

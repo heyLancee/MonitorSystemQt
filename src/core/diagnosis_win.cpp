@@ -13,7 +13,7 @@ DiagnosisWin::DiagnosisWin(QMainWindow *parent) : QMainWindow(parent), ui(std::u
 
     // 注册faultResultStruct类型
     qRegisterMetaType<FaultResultStruct>();
-    qRegisterMetaType<FaultDataStruct>();
+    qRegisterMetaType<FaultParams>();
 }
 
 void DiagnosisWin::on_cmdInjectButton_clicked()
@@ -22,22 +22,34 @@ void DiagnosisWin::on_cmdInjectButton_clicked()
     float startTime = ui->faultStartTime->value();
     float endTime = ui->faultEndTime->value();
     FaultType type = FaultType(ui->faultType->currentIndex() + 1);
-
     QString paramsString = ui->faultParams->text();
     // 将字符串分割成浮点数列表
     QStringList paramsList = paramsString.split(" ");
-
-    FaultParams params;
-    params.params.resize(paramsList.size());
+    // 去除空字符串
+    paramsList.removeAll("");
+    std::vector<double> params;
+    params.resize(paramsList.size());
     for (int i = 0; i < paramsList.size(); ++i) {
-        params.params[i] = paramsList[i].toFloat();
+        params[i] = paramsList[i].toFloat();
     }
-
-    FaultDataStruct faultData;
+    FaultParams faultData;
     faultData.faultStartTime = startTime;
     faultData.faultEndTime = endTime;
     faultData.faultType = type;
-    faultData.faultParams = params;
+    faultData.params = params;
+    if (
+        type == FaultType::GYRO_INTERMITTENT_FAULT || 
+        type == FaultType::GYRO_SLOW_FAULT ||
+        type == FaultType::GYRO_SLOW_FAULT
+    ) {
+        faultData.gyro_fault_idx = ui->gyroIDSpin_2->value();
+    }else if (
+        type == FaultType::FLYWHEEL_PARTIAL_LOSS ||
+        type == FaultType::FLYWHEEL_BIAS ||
+        type == FaultType::FLYWHEEL_COMPREHENSIVE
+    ) {
+        faultData.flywheel_fault_idx = ui->FLywheelIDSpin->value();
+    };
 
     QByteArray cmd = faultData.toByteArray();
     std::shared_ptr<QByteArray> cmdPtr = std::make_shared<QByteArray>(cmd);
