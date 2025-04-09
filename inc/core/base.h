@@ -125,7 +125,7 @@ struct FaultParams {
 
     static size_t getExpectedParamCount(FaultType type) {
         static const std::map<FaultType, size_t> PARAM_COUNTS = {
-            {FaultType::NO_FAULT, 1},
+            {FaultType::NO_FAULT, 0},
             {FaultType::GYRO_INTERMITTENT_FAULT, 1},
             {FaultType::GYRO_SLOW_FAULT, 2},
             {FaultType::GYRO_MULTI_FAULT, 1},
@@ -168,31 +168,6 @@ struct FaultParams {
                 break;
         }
     }
-
-    // QByteArray toBytes() const {
-    //     QByteArray data;
-    //     data.resize(params.size() * sizeof(double));
-    //     double* values = reinterpret_cast<double*>(data.data());
-    //     for (size_t i = 0; i < params.size(); ++i) {
-    //         values[i] = params[i];
-    //     }
-    //     return data;
-    // }
-
-    // static FaultParams fromBytes(const QByteArray& data, FaultType type) {
-    //     size_t num_params = getExpectedParamCount(type);
-    //     if (data.size() != static_cast<int>(num_params * sizeof(double))) {
-    //         throw std::runtime_error("Invalid data length for fault type");
-    //     }
-
-    //     const double* values = reinterpret_cast<const double*>(data.constData());
-    //     std::vector<double> params(values, values + num_params);
-    //     FaultParams fault_params = FaultParams();
-    //     fault_params.faultType = type;
-    //     fault_params.params = params;
-    //     fault_params.validateAndAssignParams();
-    //     return fault_params;
-    // }
 
     QByteArray toByteArray() const {
         QByteArray data;

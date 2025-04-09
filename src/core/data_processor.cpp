@@ -23,7 +23,6 @@ void DataProcessor::processData(std::shared_ptr<QByteArray> datagram) {
                 qWarning() << "Failed to unpack telemetry data.";
                 return;
             }
-            
             *unpackedDataVariant = QVariant::fromValue(telemetryData);
             break;
         }
